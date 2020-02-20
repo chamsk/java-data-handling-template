@@ -2,6 +2,8 @@ package com.epam.izh.rd.online.service;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SimpleBigNumbersService implements BigNumbersService {
 
@@ -13,7 +15,7 @@ public class SimpleBigNumbersService implements BigNumbersService {
      */
     @Override
     public BigDecimal getPrecisionNumber(int a, int b, int range) {
-        return null;
+        return BigDecimal.valueOf(a).divide(BigDecimal.valueOf(b),range,BigDecimal.ROUND_DOWN);
     }
 
     /**
@@ -24,6 +26,32 @@ public class SimpleBigNumbersService implements BigNumbersService {
      */
     @Override
     public BigInteger getPrimaryNumber(int range) {
-        return null;
+        List<BigInteger> numbers = new ArrayList<>();
+        numbers.add(BigInteger.valueOf(2));
+        BigInteger number = BigInteger.valueOf(2);
+        while (true){
+            boolean flag = true;
+            number = number.add(BigInteger.ONE);
+            BigInteger dividend = BigInteger.valueOf(3);
+            if(number.mod(BigInteger.valueOf(2)).equals(BigInteger.valueOf(0))){
+                flag = false;
+            }
+             while (true){
+                  if(dividend.compareTo(number.subtract(BigInteger.ONE))>=0){
+                     break;
+                  }
+                  if(number.mod(dividend).equals(BigInteger.valueOf(0))){
+                      flag = false;
+                  }
+                 dividend =  dividend.add(BigInteger.valueOf(2));
+               }
+            if(flag == true){
+                numbers.add(number);
+            }
+            if(numbers.size()==range+1){
+                break;
+            }
+        }
+        return numbers.get(range);
     }
 }

@@ -1,5 +1,9 @@
 package com.epam.izh.rd.online.service;
 
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class SimpleRegExpService implements RegExpService {
 
     /**
@@ -11,7 +15,30 @@ public class SimpleRegExpService implements RegExpService {
      */
     @Override
     public String maskSensitiveData() {
-        return null;
+        String result = "";
+        Pattern pattern;
+        Matcher matcher;
+        StringBuffer sf = new StringBuffer();
+        try( BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("src/main/resources/sensitive_data.txt")))) {
+            pattern = Pattern.compile("\\d{4}\\s\\d{4}\\s\\d{4}\\s\\d{4}");
+            while (reader.ready()){
+                matcher = pattern.matcher(reader.readLine());
+                  while (matcher.find()) {
+                      String[] temp = matcher.group().split(" ");
+                      temp[1] = "****";
+                      temp[2] = "****";
+                      matcher.appendReplacement(sf, temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3]);
+                  }
+                matcher.appendTail(sf);
+                result+=sf + "\n";
+                sf.setLength(0);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**
@@ -22,6 +49,35 @@ public class SimpleRegExpService implements RegExpService {
      */
     @Override
     public String replacePlaceholders(double paymentAmount, double balance) {
-        return null;
+        String result = "";
+        Pattern paymentPattern = Pattern.compile("\\$\\{payment_amount\\}");;
+        Pattern balancePattern = Pattern.compile("\\$\\{balance\\}");;
+        Matcher matcher;
+        StringBuffer buffer = new StringBuffer();
+        try( BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("src/main/resources/sensitive_data.txt")))) {
+            while (reader.ready()){
+                String temp = "";
+                matcher = paymentPattern.matcher(reader.readLine());
+                   while (matcher.find()) {
+                       matcher.appendReplacement(buffer, String.valueOf(paymentAmount));
+                   }
+                matcher.appendTail(buffer);
+                temp+=buffer;
+                buffer.setLength(0);
+                matcher = balancePattern.matcher(temp);
+                  while (matcher.find()){
+                     matcher.appendReplacement(buffer,String.valueOf(balance));
+                 }
+                matcher.appendTail(buffer);
+                temp=buffer + "\n";
+                buffer.setLength(0);
+                result += temp;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

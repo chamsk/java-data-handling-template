@@ -13,7 +13,7 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public String removeString(String base, String remove) {
-        return null; //TODO
+        return base.replaceAll(remove,"");
     }
 
     /**
@@ -24,7 +24,10 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public boolean isQuestionString(String text) {
-        return false; //TODO
+        if (text.endsWith("?")){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -35,7 +38,11 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public String concatenate(String... elements) {
-        return null; //TODO
+        String result = "";
+        for (String element:elements) {
+            result = result.concat(element);
+        }
+        return result;
     }
 
     /**
@@ -47,7 +54,14 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public String toJumpCase(String text) {
-        return null; //TODO
+        text = text.toUpperCase();
+        char[] chars = text.toCharArray();
+        for (int i=0;i<chars.length;i++){
+            if(i==0||i%2==0){
+                chars[i] = Character.toLowerCase(chars[i]);
+            }
+        }
+        return String.valueOf(chars);
     }
 
     /**
@@ -59,6 +73,14 @@ public class SimpleTextService implements TextService {
      */
     @Override
     public boolean isPalindrome(String string) {
-       return false; //TODO
+        string = string.replaceAll(" ","").toLowerCase();
+        char[] source = string.toCharArray();
+        char[] target = new char[source.length];
+        int index = target.length;
+        for (int i = 0;i<source.length;i++){
+            index--;
+            target[index] = source[i];
+        }
+        return String.valueOf(source).equals(String.valueOf(target));
     }
 }
