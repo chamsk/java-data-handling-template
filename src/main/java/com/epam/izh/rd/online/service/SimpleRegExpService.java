@@ -30,7 +30,7 @@ public class SimpleRegExpService implements RegExpService {
                       matcher.appendReplacement(sf, temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3]);
                   }
                 matcher.appendTail(sf);
-                result+=sf + "\n";
+                result+=sf;
                 sf.setLength(0);
             }
         } catch (FileNotFoundException e) {
@@ -59,17 +59,17 @@ public class SimpleRegExpService implements RegExpService {
                 String temp = "";
                 matcher = paymentPattern.matcher(reader.readLine());
                    while (matcher.find()) {
-                       matcher.appendReplacement(buffer, String.valueOf(paymentAmount));
+                       matcher.appendReplacement(buffer, String.format("%.0f", paymentAmount));
                    }
                 matcher.appendTail(buffer);
                 temp+=buffer;
                 buffer.setLength(0);
                 matcher = balancePattern.matcher(temp);
                   while (matcher.find()){
-                     matcher.appendReplacement(buffer,String.valueOf(balance));
+                     matcher.appendReplacement(buffer,String.format("%.0f", balance));
                  }
                 matcher.appendTail(buffer);
-                temp=buffer + "\n";
+                temp=String.valueOf(buffer);
                 buffer.setLength(0);
                 result += temp;
             }

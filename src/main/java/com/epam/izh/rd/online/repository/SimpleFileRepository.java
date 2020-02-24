@@ -3,9 +3,11 @@ package com.epam.izh.rd.online.repository;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 public class SimpleFileRepository implements FileRepository {
+    public final String RESOURCES_PATH = "src\\main\\resources\\";
 
     /**
      * Метод рекурсивно подсчитывает количество файлов в директории
@@ -15,14 +17,16 @@ public class SimpleFileRepository implements FileRepository {
      */
     @Override
     public long countFilesInDirectory(String path){
-        File dir = new File(path);
-        long count = 0;
-        for (File f : dir.listFiles()) {
-            if (f.isFile()) {
-                count++;
-            }
+        VisitorImpl visitor = new VisitorImpl();
+        if(!Files.exists(Paths.get(path))){
+            path =  RESOURCES_PATH + path;
         }
-        return count;
+        try {
+            Files.walkFileTree(Paths.get(path),visitor);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return visitor.countFiles;
     }
 
     /**
@@ -33,14 +37,16 @@ public class SimpleFileRepository implements FileRepository {
      */
     @Override
     public long countDirsInDirectory(String path) {
-        File dir = new File(path);
-        long count = 1;
-        for (File f : dir.listFiles()) {
-            if (f.isDirectory()) {
-                count++;
-            }
+        VisitorImpl visitor = new VisitorImpl();
+        if(!Files.exists(Paths.get(path))){
+            path = RESOURCES_PATH + path;
         }
-        return count;
+        try {
+            Files.walkFileTree(Paths.get(path),visitor);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return visitor.countDirs;
     }
 
     /**
@@ -70,16 +76,18 @@ public class SimpleFileRepository implements FileRepository {
      */
     @Override
     public boolean createFile(String path, String name) {
-        Path dir = Paths.get(path + "/" + name);
+        Path fileName = Paths.get(path + "/" + name);
         try {
-            Files.createFile(dir);
+            if(Files.notExists(Paths.get(path))) {
+                Files.createDirectory(Paths.get(path));
+            }
+            if(Files.notExists(fileName)) {
+                Files.createFile(fileName);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (Files.exists(dir)){
-            return true;
-        }
-        return false;
+        return Files.exists(fileName);
     }
 
     /**
@@ -91,15 +99,37 @@ public class SimpleFileRepository implements FileRepository {
     @Override
     public String readFileFromResources(String fileName) {
         String result = "";
-        Path path = Paths.get("src/main/resources/" + fileName);
+        Path path = Paths.get(RESOURCES_PATH + fileName);
         try {
             List<String> strings = Files.readAllLines(path);
             for (String line : strings) {
-                result += line + "\n";
+                result += line;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return result;
     }
+
+    public static class VisitorImpl extends SimpleFileVisitor<Path>
+    {
+        int countFiles=0;
+        int countDirs=0;
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+        {
+            if (attrs.isDirectory())
+                countDirs++;
+            return super.preVisitDirectory(dir, attrs);
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+        {
+            countFiles++;
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
 }

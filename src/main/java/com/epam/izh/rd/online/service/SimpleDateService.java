@@ -56,6 +56,9 @@ public class SimpleDateService implements DateService {
     @Override
     public long getNextLeapYear() {
         LocalDate date= LocalDate.now();
+        if(date.isLeapYear()){
+            return date.getYear();
+        }
         do {
             date = date.plusYears(1);
         }
